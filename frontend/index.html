@@ -28,12 +28,32 @@
     </div>
   </nav>
 
-  <!-- Contenido principal -->
-  <div class="container mt-4">
+  <!-- Vista Talleres -->
+  <div id="talleresView" class="container mt-4">
     <h1 class="text-center">Lista de Talleres</h1>
-    <div id="workshopsList" class="row mt-4">
-      <!-- Aquí se insertan las tarjetas de talleres desde script.js -->
-    </div>
+    <div id="workshopsList" class="row mt-4"></div>
+  </div>
+
+  <!-- Vista Estudiante -->
+  <div id="studentView" class="container mt-4 d-none">
+    <h2>Vista Estudiante</h2>
+    <form id="studentForm">
+      <input type="text" class="form-control mb-2" placeholder="Nombre del estudiante" id="studentName">
+      <input type="number" class="form-control mb-2" placeholder="ID del taller" id="workshopId">
+      <button type="submit" class="btn btn-success">Inscribirse</button>
+    </form>
+    <div id="studentMessage" class="mt-3"></div>
+  </div>
+
+  <!-- Vista Administración -->
+  <div id="adminView" class="container mt-4 d-none">
+    <h2>Administración</h2>
+    <form id="adminForm">
+      <input type="text" class="form-control mb-2" placeholder="Nombre del taller" id="workshopName">
+      <input type="number" class="form-control mb-2" placeholder="Cupos" id="workshopSlots">
+      <button type="submit" class="btn btn-primary">Crear Taller</button>
+    </form>
+    <div id="adminMessage" class="mt-3"></div>
   </div>
 
   <!-- Bootstrap JS -->
