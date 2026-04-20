@@ -1,43 +1,381 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Gestión de Talleres</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="styles.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Talleres de Formación</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F5F3EE;
+      --surface: #FFFFFF;
+      --border: #E2DDD5;
+      --text: #1C1916;
+      --muted: #6B6560;
+      --accent: #2C5F4A;
+      --accent-light: #EAF3ED;
+      --accent-hover: #234D3C;
+      --tag-tec: #1D4ED8; --tag-tec-bg: #EFF6FF;
+      --tag-emp: #92400E; --tag-emp-bg: #FFFBEB;
+      --tag-hab: #6D28D9; --tag-hab-bg: #F5F3FF;
+      --tag-otro: #374151; --tag-otro-bg: #F9FAFB;
+      --radius: 14px;
+      --shadow: 0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; min-height: 100vh; }
+
+    /* HEADER */
+    header {
+      background: var(--accent);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+    .logo-icon { width: 32px; height: 32px; background: rgba(255,255,255,.15); border-radius: 8px; display: grid; place-items: center; font-size: 18px; }
+    .logo-text { font-family: 'DM Serif Display', serif; font-size: 20px; letter-spacing: -.3px; }
+    .header-link { color: rgba(255,255,255,.7); font-size: 14px; text-decoration: none; transition: color .2s; }
+    .header-link:hover { color: #fff; }
+
+    /* HERO */
+    .hero {
+      background: var(--accent);
+      padding: 3.5rem 2rem 4rem;
+      text-align: center;
+    }
+    .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); color: #fff; line-height: 1.1; margin-bottom: 1rem; }
+    .hero p { color: rgba(255,255,255,.75); font-size: 1.05rem; max-width: 520px; margin: 0 auto 2rem; line-height: 1.65; }
+    .search-bar {
+      display: flex; gap: 8px; max-width: 520px; margin: 0 auto;
+      background: #fff; border-radius: 50px; padding: 6px 6px 6px 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    }
+    .search-bar input { flex: 1; border: none; outline: none; font-size: 14px; background: transparent; font-family: 'DM Sans', sans-serif; color: var(--text); }
+    .search-bar input::placeholder { color: var(--muted); }
+    .btn-search { background: var(--accent); color: #fff; border: none; border-radius: 40px; padding: 10px 22px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .2s; }
+    .btn-search:hover { background: var(--accent-hover); }
+
+    /* FILTROS */
+    .filters-wrap { background: var(--surface); border-bottom: 1px solid var(--border); }
+    .filters { max-width: 1100px; margin: 0 auto; padding: .85rem 2rem; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .filters span { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-right: 4px; }
+    .filter-btn {
+      padding: 5px 14px; font-size: 13px; border: 1px solid var(--border); border-radius: 50px;
+      background: transparent; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* MAIN */
+    main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+    .section-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem; }
+    .section-header h2 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; }
+    #workshops-count { font-size: 13px; color: var(--muted); }
+
+    /* GRID */
+    .workshops-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+
+    /* CARD */
+    .workshop-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .workshop-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,.1); }
+    .card-color-bar { height: 5px; background: var(--accent); }
+    .card-body { padding: 1.25rem 1.35rem; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .card-title { font-family: 'DM Serif Display', serif; font-size: 1.15rem; line-height: 1.25; color: var(--text); flex: 1; }
+    .tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; text-transform: capitalize; }
+    .tag-tecnología   { background: var(--tag-tec-bg); color: var(--tag-tec); }
+    .tag-emprendimiento { background: var(--tag-emp-bg); color: var(--tag-emp); }
+    .tag-habilidades.blandas,
+    .tag-habilidades-blandas { background: var(--tag-hab-bg); color: var(--tag-hab); }
+    .tag-otro { background: var(--tag-otro-bg); color: var(--tag-otro); }
+    .card-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; flex: 1; }
+    .card-meta { display: flex; flex-direction: column; gap: 5px; }
+    .meta-item { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
+    .meta-icon { width: 16px; text-align: center; font-size: 14px; }
+    .capacity-bar-wrap { margin-top: 2px; }
+    .capacity-label { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .capacity-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .capacity-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .4s; }
+    .capacity-fill.high { background: #DC2626; }
+    .card-footer { padding: 0 1.35rem 1.25rem; }
+    .btn-register {
+      width: 100%; padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background .2s, transform .1s;
+    }
+    .btn-register:hover { background: var(--accent-hover); }
+    .btn-register:active { transform: scale(.98); }
+    .btn-register:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200;
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+      opacity: 0; pointer-events: none; transition: opacity .2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface); border-radius: 20px; width: 100%; max-width: 440px;
+      padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      transform: translateY(16px); transition: transform .25s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal h3 { font-family: 'DM Serif Display', serif; font-size: 1.4rem; margin-bottom: .35rem; }
+    .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .form-group input {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); outline: none;
+      transition: border-color .2s;
+    }
+    .form-group input:focus { border-color: var(--accent); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 1.5rem; }
+    .btn-cancel { flex: 1; padding: 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--muted); transition: background .2s; }
+    .btn-cancel:hover { background: var(--border); }
+    .btn-confirm { flex: 2; padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .2s; }
+    .btn-confirm:hover { background: var(--accent-hover); }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #1C1916; color: #fff; padding: 14px 24px; border-radius: 50px;
+      font-size: 14px; font-weight: 500; z-index: 300; transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--accent); }
+    .toast.error { background: #DC2626; }
+
+    /* EMPTY */
+    .empty { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .empty h3 { font-size: 1.2rem; color: var(--text); margin-bottom: .5rem; }
+
+    @media(max-width:600px) {
+      header { padding: 0 1rem; }
+      .hero { padding: 2.5rem 1.25rem 3rem; }
+      main { padding: 1.5rem 1rem; }
+      .workshops-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
-<body class="bg-light">
+<body>
 
-  <div class="container mt-5">
-    <h1 class="text-primary fw-bold">🌟 Talleres de Formación Profesional</h1>
-    <table class="table table-striped table-hover mt-4">
-      <thead class="table-dark">
-        <tr>
-          <th>Nombre</th>
-          <th>Fecha</th>
-          <th>Hora</th>
-          <th>Lugar</th>
-          <th>Categoría</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Curso de Python</td>
-          <td>25/04/2026</td>
-          <td>10:00 AM</td>
-          <td>Aula 101</td>
-          <td>Tecnología</td>
-          <td>
-            <button class="btn btn-success btn-sm">Inscribirse</button>
-            <button class="btn btn-warning btn-sm">Editar</button>
-            <button class="btn btn-danger btn-sm">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<header>
+  <a class="logo" href="index.html">
+    <div class="logo-icon">🎓</div>
+    <span class="logo-text">FormaPro</span>
+  </a>
+  <a class="header-link" href="admin.html">Panel Admin →</a>
+</header>
+
+<section class="hero">
+  <h1>Talleres de<br>Formación Profesional</h1>
+  <p>Descubre cursos técnicos, capacitaciones prácticas y programas de actualización diseñados para impulsar tu carrera.</p>
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Buscar talleres..." />
+    <button class="btn-search" onclick="filterWorkshops()">Buscar</button>
   </div>
+</section>
 
+<div class="filters-wrap">
+  <div class="filters">
+    <span>Filtrar:</span>
+    <button class="filter-btn active" onclick="setFilter(this,'')">Todos</button>
+    <button class="filter-btn" onclick="setFilter(this,'tecnología')">Tecnología</button>
+    <button class="filter-btn" onclick="setFilter(this,'emprendimiento')">Emprendimiento</button>
+    <button class="filter-btn" onclick="setFilter(this,'habilidades blandas')">Habilidades blandas</button>
+  </div>
+</div>
+
+<main>
+  <div class="section-header">
+    <h2>Talleres disponibles</h2>
+    <span id="workshops-count">Cargando...</span>
+  </div>
+  <div class="workshops-grid" id="workshops-grid"></div>
+</main>
+
+<!-- MODAL DE REGISTRO -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h3 id="modal-title">Registrarse en taller</h3>
+    <p class="modal-sub" id="modal-sub">Completa tus datos para inscribirte.</p>
+    <div class="form-group">
+      <label for="input-name">Nombre completo *</label>
+      <input type="text" id="input-name" placeholder="Tu nombre" />
+    </div>
+    <div class="form-group">
+      <label for="input-email">Correo electrónico</label>
+      <input type="email" id="input-email" placeholder="tu@correo.com" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmRegister()">Confirmar registro</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = 'http://localhost:5000';
+  let workshops = [];
+  let currentFilter = '';
+  let currentSearch = '';
+  let selectedWorkshopId = null;
+
+  const CATEGORY_COLORS = {
+    'tecnología':        '#1D4ED8',
+    'emprendimiento':    '#D97706',
+    'habilidades blandas': '#7C3AED',
+  };
+
+  async function loadWorkshops() {
+    try {
+      const res = await fetch(`${API}/workshops`);
+      if (!res.ok) throw new Error();
+      workshops = await res.json();
+      renderWorkshops();
+    } catch {
+      document.getElementById('workshops-grid').innerHTML =
+        `<div class="empty"><div class="empty-icon">⚠️</div><h3>No se pudo conectar al servidor</h3><p>Asegúrate de que Flask esté corriendo en el puerto 5000.</p></div>`;
+      document.getElementById('workshops-count').textContent = '';
+    }
+  }
+
+  function renderWorkshops() {
+    const grid = document.getElementById('workshops-grid');
+    let filtered = workshops;
+
+    if (currentFilter) filtered = filtered.filter(w => w.category === currentFilter);
+    if (currentSearch) filtered = filtered.filter(w =>
+      w.name.toLowerCase().includes(currentSearch) ||
+      (w.description || '').toLowerCase().includes(currentSearch)
+    );
+
+    document.getElementById('workshops-count').textContent =
+      `${filtered.length} taller${filtered.length !== 1 ? 'es' : ''}`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><h3>No se encontraron talleres</h3><p>Prueba con otro filtro o búsqueda.</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(w => {
+      const pct = w.capacity ? Math.round((w.registered / w.capacity) * 100) : 0;
+      const full = w.registered >= w.capacity;
+      const tagClass = 'tag-' + (w.category || 'otro').replace(/ /g, '-');
+      const barColor = pct >= 80 ? ' high' : '';
+      const accentColor = CATEGORY_COLORS[w.category] || '#2C5F4A';
+      return `
+        <div class="workshop-card">
+          <div class="card-color-bar" style="background:${accentColor}"></div>
+          <div class="card-body">
+            <div class="card-top">
+              <h3 class="card-title">${esc(w.name)}</h3>
+              <span class="tag ${tagClass}">${esc(w.category || 'otro')}</span>
+            </div>
+            <p class="card-desc">${esc(w.description || 'Sin descripción disponible.')}</p>
+            <div class="card-meta">
+              <div class="meta-item"><span class="meta-icon">📅</span>${esc(w.date || '—')}</div>
+              <div class="meta-item"><span class="meta-icon">🕐</span>${esc(w.time || '—')}</div>
+              <div class="meta-item"><span class="meta-icon">📍</span>${esc(w.location || '—')}</div>
+            </div>
+            <div class="capacity-bar-wrap">
+              <div class="capacity-label">
+                <span>Cupos</span>
+                <span>${w.registered} / ${w.capacity}</span>
+              </div>
+              <div class="capacity-bar"><div class="capacity-fill${barColor}" style="width:${pct}%"></div></div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn-register" ${full ? 'disabled' : ''} onclick="openModal(${w.id},'${esc(w.name)}')">
+              ${full ? 'Cupos agotados' : 'Registrarme'}
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function setFilter(btn, cat) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = cat;
+    renderWorkshops();
+  }
+
+  function filterWorkshops() {
+    currentSearch = document.getElementById('search-input').value.toLowerCase().trim();
+    renderWorkshops();
+  }
+
+  document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') filterWorkshops();
+  });
+
+  function openModal(id, name) {
+    selectedWorkshopId = id;
+    document.getElementById('modal-title').textContent = 'Inscripción al taller';
+    document.getElementById('modal-sub').textContent = name;
+    document.getElementById('input-name').value = '';
+    document.getElementById('input-email').value = '';
+    document.getElementById('modal').classList.add('open');
+    setTimeout(() => document.getElementById('input-name').focus(), 100);
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    selectedWorkshopId = null;
+  }
+
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modal')) closeModal();
+  }
+
+  async function confirmRegister() {
+    const name  = document.getElementById('input-name').value.trim();
+    const email = document.getElementById('input-email').value.trim();
+    if (!name) { showToast('El nombre es obligatorio.', 'error'); return; }
+
+    try {
+      const res = await fetch(`${API}/workshops/${selectedWorkshopId}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_name: name, student_email: email })
+      });
+      const data = await res.json();
+      if (!res.ok) { showToast(data.error || 'Error al registrarse.', 'error'); return; }
+      closeModal();
+      showToast('¡Te has registrado exitosamente! 🎉', 'success');
+      await loadWorkshops();
+    } catch {
+      showToast('No se pudo conectar al servidor.', 'error');
+    }
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type}`;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  loadWorkshops();
+</script>
 </body>
 </html>
