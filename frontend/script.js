@@ -1,87 +1,82 @@
+// URL base de la API
+const API_URL = "http://localhost:5000/workshops";
 
-const API_TALLERES = "http://localhost:5000/api/talleres";
-const API_INSCRIBIR = "http://localhost:5000/api/inscribir";
-
-// Alternar vistas
-function showView(view) {
-  document.getElementById("talleresView").classList.toggle("d-none", view !== "talleres");
-  document.getElementById("studentView").classList.toggle("d-none", view !== "estudiante");
-  document.getElementById("adminView").classList.toggle("d-none", view !== "administración");
-}
-
-// Eventos de navbar
-document.querySelectorAll(".nav-link").forEach(link => {
-  link.addEventListener("click", e => {
-    e.preventDefault();
-    const text = e.target.textContent.toLowerCase();
-    showView(text);
-  });
-});
-
-// Cargar talleres
+// Cargar talleres al iniciar
 async function loadWorkshops() {
-  try {
-    const resp = await fetch(API_TALLERES);
-    if (!resp.ok) throw new Error("Error al cargar talleres");
-    const talleres = await resp.json();
+  const response = await fetch(API_URL);
+  const workshops = await response.json();
 
-    const list = document.getElementById("workshopsList");
-    list.innerHTML = "";
-    talleres.forEach(t => {
-      list.innerHTML += `
-        <div class="col-md-4">
-          <div class="card workshop-card">
-            <div class="card-body">
-              <h5 class="card-title">${t.nombre}</h5>
-              <p>Cupos disponibles: ${t.cupos}</p>
-            </div>
-          </div>
-        </div>
-      `;
-    });
-  } catch (error) {
-    console.error(error);
-  }
+  const tbody = document.querySelector("tbody");
+  tbody.innerHTML = "";
+
+  workshops.forEach(w => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${w.name}</td>
+      <td>${w.date}</td>
+      <td>${w.time}</td>
+      <td>${w.location}</td>
+      <td>${w.category}</td>
+      <td>
+        <button class="btn btn-success btn-sm" onclick="registerStudent(${w.id})">Inscribirse</button>
+        <button class="btn btn-warning btn-sm" onclick="editWorkshop(${w.id})">Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteWorkshop(${w.id})">Eliminar</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
 }
 
-// Inscripción estudiante
-document.getElementById("studentForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const nombre = document.getElementById("studentName").value;
-  const tallerId = document.getElementById("workshopId").value;
+// Registrar estudiante
+async function registerStudent(id) {
+  const studentName = prompt("Ingrese su nombre:");
+  if (!studentName) return;
 
-  try {
-    const resp = await fetch(API_INSCRIBIR, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ nombre: nombre, taller_id: parseInt(tallerId) })
-    });
-    const result = await resp.json();
-    document.getElementById("studentMessage").innerText = result.message;
-  } catch (error) {
-    console.error(error);
-  }
-});
+  const response = await fetch(`${API_URL}/${id}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ student_name: studentName })
+  });
 
-// Crear taller (admin)
-document.getElementById("adminForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const nombre = document.getElementById("workshopName").value;
-  const cupos = document.getElementById("workshopSlots").value;
+  const result = await response.json();
+  alert(result.message);
+}
 
-  try {
-    const resp = await fetch(API_TALLERES, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ nombre: nombre, cupos: parseInt(cupos) })
-    });
-    const result = await resp.json();
-    document.getElementById("adminMessage").innerText = result.message || "Taller creado";
-    loadWorkshops(); // refrescar lista
-  } catch (error) {
-    console.error(error);
-  }
-});
+// Editar taller
+async function editWorkshop(id) {
+  const newName = prompt("Nuevo nombre del taller:");
+  const newDate = prompt("Nueva fecha (dd/mm/yyyy):");
+  const newTime = prompt("Nueva hora (HH:MM):");
+  const newLocation = prompt("Nuevo lugar:");
+  const newCategory = prompt("Nueva categoría:");
+
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: newName,
+      description: "Actualizado",
+      date: newDate,
+      time: newTime,
+      location: newLocation,
+      category: newCategory
+    })
+  });
+
+  const result = await response.json();
+  alert(result.message);
+  loadWorkshops();
+}
+
+// Eliminar taller
+async function deleteWorkshop(id) {
+  if (!confirm("¿Seguro que deseas eliminar este taller?")) return;
+
+  const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+  const result = await response.json();
+  alert(result.message);
+  loadWorkshops();
+}
 
 // Inicializar
-loadWorkshops();
+document.addEventListener("DOMContentLoaded", loadWorkshops);
