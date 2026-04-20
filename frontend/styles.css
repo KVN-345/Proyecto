@@ -1,0 +1,52 @@
+/* Fondo general con un color suave */
+body {
+  background: linear-gradient(to right, #f0f8ff, #e6f7ff);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Barra de navegación más llamativa */
+.navbar {
+  background: linear-gradient(90deg, #007bff, #00c6ff);
+}
+
+.navbar-brand {
+  font-weight: bold;
+  color: #fff !important;
+}
+
+/* Títulos con colores vivos */
+h2 {
+  text-align: center;
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+/* Cards de talleres con sombra y bordes redondeados */
+.card {
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-title {
+  color: #ff6600;
+  font-weight: bold;
+}
+
+/* Botones más alegres */
+.btn-success {
+  background-color: #28a745;
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
