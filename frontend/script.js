@@ -1,3 +1,4 @@
+
 const API_TALLERES = "http://localhost:5000/api/talleres";
 const API_INSCRIBIR = "http://localhost:5000/api/inscribir";
 
@@ -53,7 +54,7 @@ document.getElementById("studentForm").addEventListener("submit", async e => {
     const resp = await fetch(API_INSCRIBIR, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ nombre, taller_id: parseInt(tallerId) })
+      body: JSON.stringify({ nombre: nombre, taller_id: parseInt(tallerId) })
     });
     const result = await resp.json();
     document.getElementById("studentMessage").innerText = result.message;
@@ -72,7 +73,7 @@ document.getElementById("adminForm").addEventListener("submit", async e => {
     const resp = await fetch(API_TALLERES, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ nombre, cupos: parseInt(cupos) })
+      body: JSON.stringify({ nombre: nombre, cupos: parseInt(cupos) })
     });
     const result = await resp.json();
     document.getElementById("adminMessage").innerText = result.message || "Taller creado";
